@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Code2, Eye, Loader2, Wand2 } from 'lucide-react';
+import { ArrowLeft, Code2, Eye, Loader2, Wand2, Copy, Download, Check } from 'lucide-react';
 import { CodeEditor } from './CodeEditor';
 import { FileExplorer } from './FileExplorer';
 import { FileStructure } from '../types';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import JSZip from 'jszip';
 
 const genAI = new GoogleGenerativeAI('AIzaSyAEqPymGMYWxjc3M_Z0fQtqigOvoQaOiEQ');
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
@@ -21,6 +22,7 @@ export function GeneratorResult() {
   const [showPreview, setShowPreview] = useState(false);
   const [newPrompt, setNewPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [copiedFile, setCopiedFile] = useState<string | null>(null);
 
   useEffect(() => {
     // Load prompt from localStorage
@@ -135,6 +137,39 @@ Please provide the code in separate blocks for HTML, CSS, and JavaScript. Use ma
     }
   };
 
+  const handleCopyCode = async (content: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopiedFile(selectedFile?.name || null);
+      setTimeout(() => setCopiedFile(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy code:', err);
+    }
+  };
+
+  const handleDownloadZip = async () => {
+    const zip = new JSZip();
+
+    // Add all files to the zip
+    files.forEach(file => {
+      zip.file(file.name, file.content);
+    });
+
+    try {
+      const content = await zip.generateAsync({ type: "blob" });
+      const url = window.URL.createObjectURL(content);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'website.zip';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error('Failed to create zip file:', err);
+    }
+  };
+
   const selectedFile = files.find(f => f.isSelected) || null;
   const generatedCode = selectedFile ? {
     fileName: selectedFile.name,
@@ -179,9 +214,20 @@ Please provide the code in separate blocks for HTML, CSS, and JavaScript. Use ma
               <Code2 className="w-6 h-6 text-indigo-400" />
               <h1 className="text-xl font-semibold text-white">Generated Website</h1>
             </div>
-            <div className="flex items-center gap-2 text-gray-400">
-              {isLoading && <Loader2 className="w-5 h-5 animate-spin" />}
-              <span>{isLoading ? 'Generating...' : 'Ready'}</span>
+            <div className="flex items-center gap-4">
+              {files.length > 0 && (
+                <button
+                  onClick={handleDownloadZip}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  <span className="hidden sm:inline">Download ZIP</span>
+                </button>
+              )}
+              <div className="flex items-center gap-2 text-gray-400">
+                {isLoading && <Loader2 className="w-5 h-5 animate-spin" />}
+                <span>{isLoading ? 'Generating...' : 'Ready'}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -225,9 +271,26 @@ Please provide the code in separate blocks for HTML, CSS, and JavaScript. Use ma
           <div className="col-span-12 lg:col-span-9">
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 ring-1 ring-gray-700/50">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-medium text-white">
-                  {showPreview ? 'Preview' : 'Code Editor'}
-                </h2>
+                <div className="flex items-center gap-4">
+                  <h2 className="text-lg font-medium text-white">
+                    {showPreview ? 'Preview' : 'Code Editor'}
+                  </h2>
+                  {selectedFile && !showPreview && (
+                    <button
+                      onClick={() => handleCopyCode(selectedFile.content)}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-300 hover:text-white transition-colors"
+                    >
+                      {copiedFile === selectedFile.name ? (
+                        <Check className="w-4 h-4 text-green-400" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                      <span className="hidden sm:inline">
+                        {copiedFile === selectedFile.name ? 'Copied!' : 'Copy Code'}
+                      </span>
+                    </button>
+                  )}
+                </div>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setShowPreview(false)}
