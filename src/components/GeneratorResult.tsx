@@ -59,7 +59,7 @@ export function GeneratorResult() {
     while ((match = fileRegex.exec(text)) !== null) {
       const [, language, content] = match;
       const fileName = language === 'html' ? 'index.html' :
-        language === 'css' ? 'styles.css' :
+        language === 'css' ? 'style.css' :
           language === 'javascript' ? 'script.js' :
             `file.${language}`;
 
@@ -179,7 +179,7 @@ Please provide the code in separate blocks for HTML, CSS, and JavaScript. Use ma
 
   const getPreviewContent = () => {
     const htmlFile = files.find(f => f.name === 'index.html')?.content || '';
-    const cssFile = files.find(f => f.name === 'styles.css')?.content || '';
+    const cssFile = files.find(f => f.name === 'style.css')?.content || '';
     const jsFile = files.find(f => f.name === 'script.js')?.content || '';
 
     return `
