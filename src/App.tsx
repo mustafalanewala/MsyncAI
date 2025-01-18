@@ -1,24 +1,17 @@
-import { Code2 } from 'lucide-react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Generator } from './components/Generator';
+import { GeneratorResult } from './components/GeneratorResult';
 
-function App() {
+export default function App() {
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      <header className="bg-gray-800 border-b border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center gap-2">
-            <Code2 className="w-8 h-8 text-indigo-400" />
-            <h1 className="text-2xl font-bold">Website Generator</h1>
-            <p className="ml-4 text-gray-400">Create websites using HTML, CSS, and JavaScript</p>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <Generator />
-      </main>
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Generator />} />
+          <Route path="/generate/:id" element={<GeneratorResult />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }
-
-export default App;
