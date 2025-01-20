@@ -12,56 +12,57 @@ export function Generator() {
     // Save prompt to localStorage with ID
     localStorage.setItem(`generator_${id}`, JSON.stringify({
       prompt,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     }));
     navigate(`/generate/${id}`);
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center gap-3">
-            <Code2 className="w-8 h-8 text-indigo-400" />
-            <h1 className="text-2xl font-bold text-white">Website Generator</h1>
-          </div>
-        </div>
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-navy-900 via-cyan-800 to-teal-700 text-gray-100">
+      <header className="flex items-center justify-center bg-transparent py-4">
+        <Code2 className="w-10 h-10 text-indigo-400 pr-2" />
+        <h1 className="text-3xl font-bold text-white">MsyncAI</h1>
       </header>
 
-      <main className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
-        <div className="w-full max-w-2xl mx-auto">
+      <main className="flex-1 flex items-center justify-center px-4">
+        <div className="w-full max-w-3xl bg-white/10 backdrop-blur-md rounded-xl p-6 shadow-lg border border-gray-100/10">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white mb-4">Create Your Website</h2>
-            <p className="text-gray-400 text-lg">
-              Describe your website and we'll generate the code for you instantly.
+            <h2 className="text-3xl font-bold text-white mb-2">Generate Your Dream Website</h2>
+            <p className="text-gray-300 text-base leading-relaxed">
+              Describe your idea, and MsyncAI will handle the rest.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 ring-1 ring-gray-700/50">
-              <label htmlFor="prompt" className="block text-lg font-medium text-gray-300 mb-3">
-                What kind of website do you want to create?
+            <div>
+              <label htmlFor="prompt" className="block text-base font-semibold text-gray-200 mb-2">
+                Website Description
               </label>
               <textarea
                 id="prompt"
-                rows={6}
+                rows={5}
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Example: Create a responsive landing page with a dark theme, navigation menu, and contact form"
-                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white placeholder-gray-500 text-lg transition-all"
+                placeholder="Example: Build a portfolio with a contact form and blog section."
+                className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-gray-100 placeholder-gray-400 text-sm shadow-sm transition"
                 required
               />
             </div>
+
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-medium text-lg text-white transition-colors shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30"
+              className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg font-medium text-sm text-white shadow-md"
             >
-              <Wand2 className="w-6 h-6" />
+              <Wand2 className="w-5 h-5" />
               Generate Website
             </button>
           </form>
         </div>
       </main>
+
+      <footer className="mt-8 py-4 text-center text-xs text-gray-400">
+        <p>© {new Date().getFullYear()} MsyncAI. All rights reserved.</p>
+      </footer>
     </div>
   );
 }

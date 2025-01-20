@@ -198,8 +198,8 @@ Please provide the code in separate blocks for HTML, CSS, and JavaScript. Use ma
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-900">
-      <header className="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700/50">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-navy-900 via-cyan-800 to-teal-700">
+      <header className="backdrop-blur-sm border-b border-gray-300/50">
         <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -212,7 +212,7 @@ Please provide the code in separate blocks for HTML, CSS, and JavaScript. Use ma
               </button>
               <div className="h-6 w-px bg-gray-700" />
               <Code2 className="w-6 h-6 text-indigo-400" />
-              <h1 className="text-xl font-semibold text-white">Generated Website</h1>
+              <h1 className="text-xl font-semibold text-white">MsyncAI</h1>
             </div>
             <div className="flex items-center gap-4">
               {files.length > 0 && (
@@ -235,39 +235,32 @@ Please provide the code in separate blocks for HTML, CSS, and JavaScript. Use ma
 
       <main className="flex-1 p-4 sm:p-6 lg:p-8">
         <div className="grid grid-cols-12 gap-6 max-w-[1920px] mx-auto">
-          {/* Files - 25% */}
           <div className="col-span-12 lg:col-span-3">
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 ring-1 ring-gray-700/50 space-y-6">
-              <div>
-                <h2 className="text-lg font-medium text-white mb-4">Files</h2>
-                <FileExplorer files={files} onFileSelect={handleFileSelect} />
-              </div>
+              <h2 className="text-lg font-medium text-white mb-4">Files</h2>
+              <FileExplorer files={files} onFileSelect={handleFileSelect} />
 
-              {/* Re-prompt form */}
               <form onSubmit={handleRegenerate} className="pt-6 border-t border-gray-700">
                 <h3 className="text-sm font-medium text-gray-300 mb-2">Update Website</h3>
-                <div className="space-y-3">
-                  <textarea
-                    value={newPrompt}
-                    onChange={(e) => setNewPrompt(e.target.value)}
-                    placeholder="Describe the changes you want to make..."
-                    className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    rows={4}
-                  />
-                  <button
-                    type="submit"
-                    disabled={isGenerating || !newPrompt.trim()}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-medium transition-colors text-white"
-                  >
-                    <Wand2 className="w-4 h-4" />
-                    {isGenerating ? 'Updating...' : 'Update Code'}
-                  </button>
-                </div>
+                <textarea
+                  value={newPrompt}
+                  onChange={(e) => setNewPrompt(e.target.value)}
+                  placeholder="Describe the changes you want to make..."
+                  className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  rows={4}
+                />
+                <button
+                  type="submit"
+                  disabled={isGenerating || !newPrompt.trim()}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-medium transition-colors text-white mt-3"
+                >
+                  <Wand2 className="w-4 h-4" />
+                  {isGenerating ? 'Updating...' : 'Update Code'}
+                </button>
               </form>
             </div>
           </div>
 
-          {/* Editor/Preview - 75% */}
           <div className="col-span-12 lg:col-span-9">
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 ring-1 ring-gray-700/50">
               <div className="flex items-center justify-between mb-4">
@@ -285,7 +278,7 @@ Please provide the code in separate blocks for HTML, CSS, and JavaScript. Use ma
                       ) : (
                         <Copy className="w-4 h-4" />
                       )}
-                      <span className="hidden sm:inline">
+                      <span>
                         {copiedFile === selectedFile.name ? 'Copied!' : 'Copy Code'}
                       </span>
                     </button>
@@ -317,7 +310,7 @@ Please provide the code in separate blocks for HTML, CSS, and JavaScript. Use ma
 
               <div className="rounded-xl overflow-hidden ring-1 ring-gray-700">
                 {showPreview ? (
-                  <div className="h-[700px] bg-white">
+                  <div className="h-[500px] bg-white">
                     <iframe
                       srcDoc={getPreviewContent()}
                       className="w-full h-full border-0"
@@ -326,9 +319,7 @@ Please provide the code in separate blocks for HTML, CSS, and JavaScript. Use ma
                     />
                   </div>
                 ) : (
-                  <div className="h-[700px]">
-                    <CodeEditor code={generatedCode} />
-                  </div>
+                  <CodeEditor code={generatedCode} />
                 )}
               </div>
             </div>
