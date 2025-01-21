@@ -1,0 +1,39 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 64 64"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  width="64"
+  height="64"
+>
+  <!-- Background Circle -->
+  <circle cx="32" cy="32" r="30" fill="#f0f0f5" stroke="#4a4aff" />
+  
+  <!-- Brain Shape (AI Representation) -->
+  <path
+    d="M22 20c3-6 10-6 13 0 2-5 9-5 11 0 2 6-2 9-7 11 5 2 9 6 7 12-2 5-9 5-11 0-2 6-10 6-13 0-2 5-9 5-11 0-2-6 2-10 7-12-5-2-9-5-7-11 2-5 9-5 11 0z"
+    fill="#4a4aff"
+  />
+  
+  <!-- Circuit Lines (Technology Representation) -->
+  <line x1="32" y1="2" x2="32" y2="12" />
+  <line x1="32" y1="52" x2="32" y2="62" />
+  <line x1="2" y1="32" x2="12" y2="32" />
+  <line x1="52" y1="32" x2="62" y2="32" />
+  <circle cx="32" cy="32" r="6" fill="#f0f0f5" />
+  
+  <!-- AI Text -->
+  <text
+    x="32"
+    y="37"
+    font-family="Arial, sans-serif"
+    font-size="8"
+    fill="#4a4aff"
+    text-anchor="middle"
+  >
+    AI
+  </text>
+</svg>
