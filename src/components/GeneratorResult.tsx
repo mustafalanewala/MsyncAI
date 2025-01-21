@@ -15,7 +15,7 @@ declare global {
   }
 }
 
-const apiKey: string | undefined = process.env.REACT_APP_SECRET_API_KEY;
+const apiKey = process.env.REACT_APP_SECRET_API_KEY;
 
 if (!apiKey) {
   throw new Error("API key is missing!");
