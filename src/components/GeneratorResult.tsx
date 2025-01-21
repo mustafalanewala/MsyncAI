@@ -7,7 +7,7 @@ import { FileStructure } from '../types';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import JSZip from 'jszip';
 
-const genAI = new GoogleGenerativeAI('AIzaSyAEqPymGMYWxjc3M_Z0fQtqigOvoQaOiEQ');
+const genAI = new GoogleGenerativeAI(process.env.REACT_APP_SECRET_API_KEY || '');
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
 
 export function GeneratorResult() {
