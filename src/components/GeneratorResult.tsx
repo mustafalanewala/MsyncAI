@@ -7,14 +7,21 @@ import { FileStructure } from '../types';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import JSZip from 'jszip';
 
-const API_KEY = process.env.REACT_APP_SECRET_API_KEY;
-
-if (!API_KEY) {
-  throw new Error("API key is not defined. Please check your .env configuration.");
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      REACT_APP_SECRET_API_KEY: string;
+    }
+  }
 }
 
-// Initialize GoogleGenerativeAI
-const genAI = new GoogleGenerativeAI(API_KEY);
+const apiKey: string | undefined = process.env.REACT_APP_SECRET_API_KEY;
+
+if (!apiKey) {
+  throw new Error("API key is missing!");
+}
+
+const genAI = new GoogleGenerativeAI(apiKey);
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
 
 export function GeneratorResult() {
