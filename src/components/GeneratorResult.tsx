@@ -6,8 +6,6 @@ import { FileExplorer } from './FileExplorer';
 import { FileStructure } from '../types';
 import JSZip from 'jszip';
 
-const OPENROUTER_API_KEY = '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';
-const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 export function GeneratorResult() {
   const { id } = useParams<{ id: string }>();
@@ -95,18 +93,17 @@ export function GeneratorResult() {
           .join('\n\n')}`
         : `Create a website with the following requirements:\n${promptText}\n\nImportant: Use only HTML, CSS, and JavaScript (no frameworks or libraries).\nPlease provide the code in separate blocks for HTML, CSS, and JavaScript. Use markdown code blocks with language specifications.`;
 
-      const response = await fetch(OPENROUTER_API_URL, {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+          "Content-Type": 'application/json',
+          "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
           "HTTP-Referer": "msyncai.vercel.app",
           "X-Title": "MsyncAI",
         },
         body: JSON.stringify({
-          model: 'mistralai/devstral-small:free',
+          model: 'deepseek/deepseek-r1:free',
           messages: [{ role: 'user', content: basePrompt }],
-          max_tokens: 4096,
         }),
       });
 
