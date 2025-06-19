@@ -100,6 +100,8 @@ export function GeneratorResult() {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+          "HTTP-Referer": "msyncai.vercel.app",
+          "X-Title": "MsyncAI",
         },
         body: JSON.stringify({
           model: 'mistralai/devstral-small:free',
