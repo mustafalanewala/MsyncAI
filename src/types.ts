@@ -4,11 +4,6 @@ export interface GeneratedCode {
   language: string;
 }
 
-export interface Step {
-  title: string;
-  description: string;
-}
-
 export interface FileStructure {
   name: string;
   content: string;

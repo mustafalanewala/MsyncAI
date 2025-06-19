@@ -4,11 +4,10 @@ import { ArrowLeft, Code2, Eye, Loader2, Wand2, Copy, Download, Check } from 'lu
 import { CodeEditor } from './CodeEditor';
 import { FileExplorer } from './FileExplorer';
 import { FileStructure } from '../types';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import JSZip from 'jszip';
 
-const genAI = new GoogleGenerativeAI('AIzaSyAEqPymGMYWxjc3M_Z0fQtqigOvoQaOiEQ'); // ENJOY
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+const OPENROUTER_API_KEY = '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';
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 export function GeneratorResult() {
   const { id } = useParams<{ id: string }>();
@@ -25,7 +24,6 @@ export function GeneratorResult() {
   const [copiedFile, setCopiedFile] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load prompt from localStorage
     const savedData = localStorage.getItem(`generator_${id}`);
     if (!savedData) {
       navigate('/');
@@ -36,7 +34,6 @@ export function GeneratorResult() {
   }, [id, navigate]);
 
   const handleBack = () => {
-    // Clear only this generation's data
     localStorage.removeItem(`generator_${id}`);
     localStorage.removeItem(`files_${id}`);
     navigate('/');
@@ -46,7 +43,7 @@ export function GeneratorResult() {
     setFiles(prevFiles =>
       prevFiles.map(file => ({
         ...file,
-        isSelected: file.name === fileName
+        isSelected: file.name === fileName,
       }))
     );
   };
@@ -58,25 +55,33 @@ export function GeneratorResult() {
 
     while ((match = fileRegex.exec(text)) !== null) {
       const [, language, content] = match;
-      const fileName = language === 'html' ? 'index.html' :
-        language === 'css' ? 'style.css' :
-          language === 'javascript' ? 'script.js' :
-            `file.${language}`;
+      const fileName =
+        language === 'html'
+          ? 'index.html'
+          : language === 'css'
+            ? 'style.css'
+            : language === 'javascript'
+              ? 'script.js'
+              : `file.${language}`;
 
       files.push({
         name: fileName,
         content: content.trim(),
         language,
-        isSelected: files.length === 0
+        isSelected: files.length === 0,
       });
     }
 
-    return files.length > 0 ? files : [{
-      name: 'index.html',
-      content: text,
-      language: 'html',
-      isSelected: true
-    }];
+    return files.length > 0
+      ? files
+      : [
+        {
+          name: 'index.html',
+          content: text,
+          language: 'html',
+          isSelected: true,
+        },
+      ];
   };
 
   const generateCode = async (promptText: string, isUpdate = false) => {
@@ -85,20 +90,30 @@ export function GeneratorResult() {
 
     try {
       const basePrompt = isUpdate
-        ? `Update the existing website with the following changes (keep existing code and only modify what's necessary):
-${promptText}
+        ? `Update the existing website with the following changes (keep existing code and only modify what's necessary):\n${promptText}\n\nCurrent files:\n${files
+          .map(f => `${f.name}:\n\`\`\`${f.language}\n${f.content}\n\`\`\``)
+          .join('\n\n')}`
+        : `Create a website with the following requirements:\n${promptText}\n\nImportant: Use only HTML, CSS, and JavaScript (no frameworks or libraries).\nPlease provide the code in separate blocks for HTML, CSS, and JavaScript. Use markdown code blocks with language specifications.`;
 
-Current files:
-${files.map(f => `${f.name}:\n\`\`\`${f.language}\n${f.content}\n\`\`\``).join('\n\n')}`
-        : `Create a website with the following requirements:
-${promptText}
+      const response = await fetch(OPENROUTER_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: 'mistralai/devstral-small:free',
+          messages: [{ role: 'user', content: basePrompt }],
+          max_tokens: 4096,
+        }),
+      });
 
-Important: Use only HTML, CSS, and JavaScript (no frameworks or libraries).
-Please provide the code in separate blocks for HTML, CSS, and JavaScript. Use markdown code blocks with language specifications.`;
+      if (!response.ok) {
+        throw new Error(`OpenRouter API error: ${response.statusText}`);
+      }
 
-      const result = await model.generateContent(basePrompt);
-      const response = await result.response;
-      const text = response.text();
+      const data = await response.json();
+      const text = data.choices[0].message.content;
 
       // Split into chunks and stream
       const chunkSize = 500;
@@ -110,7 +125,6 @@ Please provide the code in separate blocks for HTML, CSS, and JavaScript. Use ma
 
         const parsedFiles = parseCodeBlocks(accumulatedText);
         setFiles(parsedFiles);
-        // Save to localStorage with ID
         localStorage.setItem(`files_${id}`, JSON.stringify(parsedFiles));
 
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -149,14 +163,12 @@ Please provide the code in separate blocks for HTML, CSS, and JavaScript. Use ma
 
   const handleDownloadZip = async () => {
     const zip = new JSZip();
-
-    // Add all files to the zip
     files.forEach(file => {
       zip.file(file.name, file.content);
     });
 
     try {
-      const content = await zip.generateAsync({ type: "blob" });
+      const content = await zip.generateAsync({ type: 'blob' });
       const url = window.URL.createObjectURL(content);
       const a = document.createElement('a');
       a.href = url;
@@ -171,11 +183,13 @@ Please provide the code in separate blocks for HTML, CSS, and JavaScript. Use ma
   };
 
   const selectedFile = files.find(f => f.isSelected) || null;
-  const generatedCode = selectedFile ? {
-    fileName: selectedFile.name,
-    content: selectedFile.content,
-    language: selectedFile.language
-  } : null;
+  const generatedCode = selectedFile
+    ? {
+      fileName: selectedFile.name,
+      content: selectedFile.content,
+      language: selectedFile.language,
+    }
+    : null;
 
   const getPreviewContent = () => {
     const htmlFile = files.find(f => f.name === 'index.html')?.content || '';
@@ -244,7 +258,7 @@ Please provide the code in separate blocks for HTML, CSS, and JavaScript. Use ma
                 <h3 className="text-sm font-medium text-gray-300 mb-2">Update Website</h3>
                 <textarea
                   value={newPrompt}
-                  onChange={(e) => setNewPrompt(e.target.value)}
+                  onChange={e => setNewPrompt(e.target.value)}
                   placeholder="Describe the changes you want to make..."
                   className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   rows={4}
@@ -265,9 +279,7 @@ Please provide the code in separate blocks for HTML, CSS, and JavaScript. Use ma
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 ring-1 ring-gray-700/50">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-4">
-                  <h2 className="text-lg font-medium text-white">
-                    {showPreview ? 'Preview' : 'Code Editor'}
-                  </h2>
+                  <h2 className="text-lg font-medium text-white">{showPreview ? 'Preview' : 'Code Editor'}</h2>
                   {selectedFile && !showPreview && (
                     <button
                       onClick={() => handleCopyCode(selectedFile.content)}
@@ -278,18 +290,14 @@ Please provide the code in separate blocks for HTML, CSS, and JavaScript. Use ma
                       ) : (
                         <Copy className="w-4 h-4" />
                       )}
-                      <span>
-                        {copiedFile === selectedFile.name ? 'Copied!' : 'Copy Code'}
-                      </span>
+                      <span>{copiedFile === selectedFile.name ? 'Copied!' : 'Copy Code'}</span>
                     </button>
                   )}
                 </div>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setShowPreview(false)}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${!showPreview
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${!showPreview ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                       }`}
                   >
                     <Code2 className="w-4 h-4" />
@@ -297,9 +305,7 @@ Please provide the code in separate blocks for HTML, CSS, and JavaScript. Use ma
                   </button>
                   <button
                     onClick={() => setShowPreview(true)}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${showPreview
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${showPreview ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                       }`}
                   >
                     <Eye className="w-4 h-4" />
