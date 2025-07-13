@@ -6,6 +6,8 @@ import { FileExplorer } from './FileExplorer';
 import { FileStructure } from '../types';
 import JSZip from 'jszip';
 
+// ✅ Use Vite-compatible env variable access
+const OPENROUTER_KEY = import.meta.env.VITE_OPENROUTER_KEY;
 
 export function GeneratorResult() {
   const { id } = useParams<{ id: string }>();
@@ -83,6 +85,12 @@ export function GeneratorResult() {
   };
 
   const generateCode = async (promptText: string, isUpdate = false) => {
+    if (!OPENROUTER_KEY) {
+      console.error('❌ VITE_OPENROUTER_KEY is not set.');
+      alert('Missing API key. Please set VITE_OPENROUTER_KEY in your .env file.');
+      return;
+    }
+
     setIsLoading(true);
     setIsGenerating(true);
 
@@ -97,7 +105,7 @@ export function GeneratorResult() {
         method: 'POST',
         headers: {
           "Content-Type": 'application/json',
-          "Authorization": `Bearer ${process.env.REACT_APP_OPENROUTER_KEY}`,
+          "Authorization": `Bearer ${OPENROUTER_KEY}`,
           "HTTP-Referer": "msyncai.vercel.app",
           "X-Title": "MsyncAI",
         },
@@ -114,7 +122,7 @@ export function GeneratorResult() {
       const data = await response.json();
       const text = data.choices[0].message.content;
 
-      // Split into chunks and stream
+      // Simulate streaming for UX
       const chunkSize = 500;
       let accumulatedText = '';
 
